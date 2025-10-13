@@ -19,7 +19,7 @@ async function produce({ topic, key, value }) {
   const cache = await getCache();
   const partitionCount = 3;
   const partition = key ? Math.abs(hashCode(key) % partitionCount) : 0;
-  const metaKey = `https://${topic}:p${partition}:meta`;
+  const metaKey = `https://${topic}/p${partition}/meta`;
 
   // Get or initialize offset
   let meta = await cache.match(metaKey);
@@ -27,7 +27,7 @@ async function produce({ topic, key, value }) {
   offset += 1;
 
   // Store message
-  const messageKey = `https://${topic}:p${partition}:${offset}`;
+  const messageKey = `https://${topic}/p${partition}/${offset}`;
   const message = { offset, key, value, timestamp: Date.now() };
   await cache.put(messageKey, new Response(JSON.stringify(message)));
 
@@ -40,7 +40,7 @@ async function produce({ topic, key, value }) {
 // Consume messages
 async function consume({ topic, group = 'default', partition = 0, maxMessages = 10 }) {
   const cache = await getCache();
-  const offsetKey = `https://consumer:${group}:${topic}:p${partition}`;
+  const offsetKey = `https://consumer/${group}/${topic}/p${partition}`;
 
   // Get consumer group offset
   let consumerOffset = 0;
@@ -52,7 +52,7 @@ async function consume({ topic, group = 'default', partition = 0, maxMessages = 
   // Fetch messages
   const messages = [];
   for (let i = consumerOffset; i < consumerOffset + maxMessages; i++) {
-    const key = `https://${topic}:p${partition}:${i}`;
+    const key = `https://${topic}/p${partition}/${i}`;
     const cached = await cache.match(key);
     if (!cached) break;
     messages.push(await cached.json());
@@ -73,7 +73,7 @@ async function consume({ topic, group = 'default', partition = 0, maxMessages = 
         attempts++;
         if (attempts === maxAttempts) {
           // Move to DLQ
-          await cache.put(`https://dlq:${topic}:p${partition}:${msg.offset}`, new Response(JSON.stringify(msg)));
+          await cache.put(`https://dlq/${topic}/p${partition}/${msg.offset}`, new Response(JSON.stringify(msg)));
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
