@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kafka Mock with Cache API</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .section { margin: 20px 0; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Kafka Mock (Browser Cache API)</h1>
+
+  <div class="section">
+    <h2>Produce Message</h2>
+    <form id="produceForm">
+      <label>Topic: <input type="text" name="topic" value="orders"></label><br>
+      <label>Key: <input type="text" name="key" value="user123"></label><br>
+      <label>Value: <input type="text" name="value" value="buy shoes"></label><br>
+      <button type="submit">Produce</button>
+    </form>
+    <pre id="produceOutput"></pre>
+  </div>
+
+  <div class="section">
+    <h2>Consume Messages</h2>
+    <form id="consumeForm">
+      <label>Topic: <input type="text" name="topic" value="orders"></label><br>
+      <label>Consumer Group: <input type="text" name="group" value="mygroup"></label><br>
+      <label>Partition: <input type="number" name="partition" value="0" min="0"></label><br>
+      <label>Max Messages: <input type="number" name="max" value="10" min="1"></label><br>
+      <button type="submit">Consume</button>
+    </form>
+    <pre id="consumeOutput"></pre>
+  </div>
+
+  <script src="kafka-mock.js"></script>
+</body>
+</html>
