@@ -15,7 +15,11 @@ function hashCode(str) {
 }
 
 // Produce a message
-async function produce({ topic, key, value }) {
+async function produce({
+  topic,
+  key,
+  value
+}) {
   const cache = await getCache();
   const partitionCount = 3;
   const partition = key ? Math.abs(hashCode(key) % partitionCount) : 0;
@@ -28,17 +32,33 @@ async function produce({ topic, key, value }) {
 
   // Store message
   const messageKey = `https://${topic}/p${partition}/${offset}`;
-  const message = { offset, key, value, timestamp: Date.now() };
+  const message = {
+    offset,
+    key,
+    value,
+    timestamp: Date.now()
+  };
   await cache.put(messageKey, new Response(JSON.stringify(message)));
 
   // Update metadata
-  await cache.put(metaKey, new Response(JSON.stringify({ offset })));
+  await cache.put(metaKey, new Response(JSON.stringify({
+    offset
+  })));
 
-  return { success: true, offset, partition };
+  return {
+    success: true,
+    offset,
+    partition
+  };
 }
 
 // Consume messages
-async function consume({ topic, group = 'default', partition = 0, maxMessages = 10 }) {
+async function consume({
+  topic,
+  group = 'default',
+  partition = 0,
+  maxMessages = 10
+}) {
   const cache = await getCache();
   const offsetKey = `https://consumer/${group}/${topic}/p${partition}`;
 
@@ -82,10 +102,16 @@ async function consume({ topic, group = 'default', partition = 0, maxMessages = 
 
   // Commit new offset
   if (messages.length > 0) {
-    await cache.put(offsetKey, new Response(JSON.stringify({ offset: newOffset })));
+    await cache.put(offsetKey, new Response(JSON.stringify({
+      offset: newOffset
+    })));
   }
 
-  return { messages, nextOffset: newOffset, partition };
+  return {
+    messages,
+    nextOffset: newOffset,
+    partition
+  };
 }
 
 // Bind UI events
